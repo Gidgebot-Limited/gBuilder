@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  gbuilder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gbuilder
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./html:/var/www/html/
+      - ./home:/home/gbuilder/
+    networks:
+      - gidgebot
+    depends_on:
+      - builderdb
+  builderdb:
+    image: postgres:13-alpine
+    container_name: builderdb
+    volumes:
+      - ./builderdb:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: gidgebot
+      POSTGRES_PASSWORD: gidgebot
+      POSTGRES_DB: gidgebot
+    networks:
+      - gidgebot
+    ports:
+      - "5432:5432"
+networks:
+  gidgebot:
+    external: true

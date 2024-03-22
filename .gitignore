@@ -1,0 +1,10 @@
+# Ignore all files and directories by default
+/*
+
+# Except for these specific files and directories
+!builderdb/
+!home/
+!html/
+!.gitignore
+!docker-compose.yml
+!Dockerfile

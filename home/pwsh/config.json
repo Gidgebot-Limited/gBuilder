@@ -1,0 +1,15 @@
+﻿{
+    "Alpaca":{
+        "Account":"Paper",
+        "Live":{
+            "keyID":"AKRBZXAXW1GFZ9FN2CC2",
+            "secretKey":"9Y4LPHAtukgmD9eqgGUYO8SfYSSz8wSGEfahfccc",
+            "apiURL":"https://api.alpaca.markets"
+        },
+        "Paper":{
+            "keyID":"PKGXO8HQY41K1E0W0LFH",
+            "secretKey":"Sxqkapr2F58czYUL0FOgeeMa9K89gQ4hAJxxmqxo",
+            "apiURL":"https://paper-api.alpaca.markets"
+        }
+    }
+}
