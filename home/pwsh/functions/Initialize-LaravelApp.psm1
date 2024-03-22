@@ -1,3 +1,22 @@
+Function Publish-LaravelApache {
+
+    [CmdletBinding()]
+    param (
+        [string]$Name = (Get-Date -Format "yyyyMMddHHmmss"),
+        [string]$Path = "/home/gbuilder/"
+    )
+
+    Initialize-LaravelApp -Name $Name -Path $Path
+
+    $appPath = $Path + $Name
+
+    set-location  $appPath
+
+    php artisan migrate
+
+    Set-ApacheDocumentRoot -NewDocumentRoot ($appPath + "/public")
+
+}
 Function Initialize-LaravelApp {
     [CmdletBinding()]
     param (
