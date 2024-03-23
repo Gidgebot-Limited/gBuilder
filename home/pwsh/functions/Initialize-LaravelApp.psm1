@@ -1,3 +1,19 @@
+# docker exec -it gbuilder pwsh
+# /home/gbuilder/pwsh/start-localmod.ps1
+# Initialize-LaravelApp -Name "NewLaravel" -Path "/var/www/html/"
+# Set-ApacheDocumentRoot -NewDocumentRoot "/var/www/html/NewLaravel/public"
+# sl /var/www/html/NewLaravel
+# php artisan migrate
+# #####################
+# # welcome.php avail #
+# #####################
+# /home/gbuilder/pwsh/start-localmod.ps1
+# Install-BootstrapAuth 
+# /home/gbuilder/pwsh/start-localmod.ps1
+# Install-Breeze 
+# Update-data
+
+
 function Update-Data {
     
     [CmdletBinding()]
