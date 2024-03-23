@@ -1,3 +1,39 @@
+function Update-Data {
+    
+    [CmdletBinding()]
+    param (
+        [string]$Path = "."
+    )
+    sl $Path
+    composer update
+    composer install
+    php artisan install
+    npm install
+    npm run dev
+
+}
+function Install-Breeze {
+    
+    [CmdletBinding()]
+    param (
+        [string]$Path = "."
+    )
+    sl $Path
+    composer require laravel/breeze
+    php artisan breeze:install
+
+}
+function Install-BootstrapAuth {
+    
+    [CmdletBinding()]
+    param (
+        [string]$Path = "."
+    )
+    sl $Path
+    composer require laravel/ui
+    php artisan ui bootstrap --auth
+
+}
 Function Publish-LaravelApache {
 
     [CmdletBinding()]
@@ -130,7 +166,7 @@ Function Set-ApacheDocumentRoot {
     # Update Apache configuration file with new document root
     $apacheConfigFile = "/etc/apache2/sites-available/000-default.conf"
     $apacheConfigContent = Get-Content -Path $apacheConfigFile
-    $apacheConfigContent = $apacheConfigContent -replace 'DocumentRoot\s+/var/www/html', "DocumentRoot $NewDocumentRoot"
+    $apacheConfigContent = $apacheConfigContent -replace '/var/www/html', "$NewDocumentRoot"
     $apacheConfigContent | Set-Content -Path $apacheConfigFile
 
     # Restart Apache service

@@ -12,6 +12,11 @@ services:
     volumes:
       - ./html:/var/www/html/
       - ./home:/home/gbuilder/
+      - ./apache2.conf:/etc/apache2/apache2.conf
+      - ./php.ini:/etc/php/8.2/apache2/php.ini
+      - ./php.ini:/etc/php/8.2/cli/php.ini
+      - ./php.ini:/etc/php/8.2/fpm/php.ini
+      - ./000-default.conf:/etc/apache2/sites-enabled/000-default.conf
     networks:
       - gidgebot
     depends_on:
