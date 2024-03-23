@@ -1,5 +1,6 @@
 <#
     This script initializes the LocalModule Classes and Functions
+    /home/gbuilder/pwsh/start-localmod.ps1
 #>
 
 

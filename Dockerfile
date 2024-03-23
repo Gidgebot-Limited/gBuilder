@@ -11,6 +11,7 @@ RUN apt-get install -y libpq-dev
 RUN apt-get install -y libpng-dev 
 RUN apt-get install -y curl 
 RUN apt-get install -y zip 
+RUN apt-get install -y git 
 RUN apt-get install -y gnupg2 
 RUN apt-get install -y wget 
 RUN apt-get install -y lsb-release 

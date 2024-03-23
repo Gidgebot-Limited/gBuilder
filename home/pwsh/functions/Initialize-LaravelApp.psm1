@@ -1,54 +1,159 @@
 # docker exec -it gbuilder pwsh
 # /home/gbuilder/pwsh/start-localmod.ps1
-# Initialize-LaravelApp -Name "NewLaravel" -Path "/var/www/html/"
-# Set-ApacheDocumentRoot -NewDocumentRoot "/var/www/html/NewLaravel/public"
-# sl /var/www/html/NewLaravel
-# php artisan migrate
+# Publish-LaravelApache -Name "ThisSaturday" -Path "/var/www/html/"
+# Update-data
+# service apache2 restart
 # #####################
 # # welcome.php avail #
 # #####################
 # /home/gbuilder/pwsh/start-localmod.ps1
-# Install-BootstrapAuth 
+# Install-UI -Path "C:\Your\Project" -Type "bootstrap" -Auth
 # /home/gbuilder/pwsh/start-localmod.ps1
 # Install-Breeze 
 # Update-data
-
-
 function Update-Data {
     
     [CmdletBinding()]
     param (
         [string]$Path = "."
     )
-    sl $Path
+    Set-Location $Path
     composer update
     composer install
     php artisan install
     npm install
+    php artisan migrate
     npm run dev
-
 }
 function Install-Breeze {
-    
     [CmdletBinding()]
     param (
-        [string]$Path = "."
+        [string]$Path = ".",
+        [string]$Stack,
+        [switch]$DarkMode,
+        [switch]$Pest,
+        [switch]$SSR,
+        [switch]$TypeScript,
+        [string]$Composer = "global",
+        [switch]$NoInteraction
     )
-    sl $Path
-    composer require laravel/breeze
-    php artisan breeze:install
 
+    Set-Location $Path
+
+    $command = "composer require laravel/breeze --dev"
+
+    if ($Stack) {
+        $command += " && php artisan breeze:install $Stack"
+    }
+
+    if ($DarkMode) {
+        $command += " --dark"
+    }
+
+    if ($Pest) {
+        $command += " --pest"
+    }
+
+    if ($SSR) {
+        $command += " --ssr"
+    }
+
+    if ($TypeScript) {
+        $command += " --typescript"
+    }
+
+    if ($Composer -ne "global") {
+        $command += " --composer=$Composer"
+    }
+
+    if ($NoInteraction) {
+        $command += " --no-interaction"
+    }
+
+    Invoke-Expression $command
 }
-function Install-BootstrapAuth {
-    
+
+function Install-Jetstream {
     [CmdletBinding()]
     param (
-        [string]$Path = "."
+        [string]$Path = ".",
+        [string]$Stack,
+        [switch]$DarkMode,
+        [switch]$Teams,
+        [switch]$API,
+        [switch]$Verification,
+        [switch]$Pest,
+        [switch]$SSR,
+        [string]$Composer = "global",
+        [switch]$NoInteraction
     )
-    sl $Path
-    composer require laravel/ui
-    php artisan ui bootstrap --auth
 
+    Set-Location $Path
+
+    $command = "composer require laravel/jetstream"
+    $command += " && php artisan jetstream:install $Stack"
+
+    if ($DarkMode) {
+        $command += " --dark"
+    }
+
+    if ($Teams) {
+        $command += " --teams"
+    }
+
+    if ($API) {
+        $command += " --api"
+    }
+
+    if ($Verification) {
+        $command += " --verification"
+    }
+
+    if ($Pest) {
+        $command += " --pest"
+    }
+
+    if ($SSR) {
+        $command += " --ssr"
+    }
+
+    if ($Composer -ne "global") {
+        $command += " --composer=$Composer"
+    }
+
+    if ($NoInteraction) {
+        $command += " --no-interaction"
+    }
+
+    Invoke-Expression $command
+}
+function Install-UI {
+    [CmdletBinding()]
+    param (
+        [string]$Path = ".",
+        [string]$Type = "bootstrap",
+        [switch]$Auth,
+        [string[]]$Option
+    )
+
+    Set-Location $Path
+
+    $command = "composer require laravel/ui --dev"
+
+    # Add preset type
+    $command += " && php artisan ui $Type"
+
+    # Add authentication option if specified
+    if ($Auth) {
+        $command += " --auth"
+    }
+
+    # Add additional options if specified
+    foreach ($opt in $Option) {
+        $command += " --option=$opt"
+    }
+
+    Invoke-Expression $command
 }
 Function Publish-LaravelApache {
 
@@ -57,17 +162,10 @@ Function Publish-LaravelApache {
         [string]$Name = (Get-Date -Format "yyyyMMddHHmmss"),
         [string]$Path = "/home/gbuilder/"
     )
-
     Initialize-LaravelApp -Name $Name -Path $Path
-
     $appPath = $Path + $Name
-
     set-location  $appPath
-
-    php artisan migrate
-
     Set-ApacheDocumentRoot -NewDocumentRoot ($appPath + "/public")
-
 }
 Function Initialize-LaravelApp {
     [CmdletBinding()]
@@ -95,7 +193,6 @@ Function Initialize-LaravelApp {
     # Set up environment configuration
     Copy-Item -Path ".env.example" -Destination ".env"
     Update-EnvDatabase -EnvFilePath ".env" -Connection "pgsql" -Host "builderdb" -Port "5432" -Database "gidgebot" -Username "gidgebot" -Password "gidgebot"
-
 
     php artisan key:generate
 
@@ -176,15 +273,21 @@ Function Set-ApacheDocumentRoot {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory = $true)]
+        [string]$ConfigFileName,
+        [Parameter(Mandatory = $true)]
         [string]$NewDocumentRoot
     )
 
     # Update Apache configuration file with new document root
-    $apacheConfigFile = "/etc/apache2/sites-available/000-default.conf"
+    $apacheConfigFile = "/etc/apache2/sites-available/$ConfigFileName"
     $apacheConfigContent = Get-Content -Path $apacheConfigFile
-    $apacheConfigContent = $apacheConfigContent -replace '/var/www/html', "$NewDocumentRoot"
-    $apacheConfigContent | Set-Content -Path $apacheConfigFile
 
-    # Restart Apache service
-    service apache2 restart
+    # Replace DocumentRoot value in the configuration file
+    $newConfigContent = $apacheConfigContent -replace 'DocumentRoot\s+\S+', "DocumentRoot $NewDocumentRoot"
+
+    # Replace DocumentRoot value inside the Directory element
+    $newConfigContent = $newConfigContent -replace '(<Directory\s+\S+>)(?:.*?)(DocumentRoot\s+\S+)', "`$1`n`$2`nDocumentRoot $NewDocumentRoot"
+
+    # Write the updated configuration content back to the file
+    $newConfigContent | Set-Content -Path $apacheConfigFile -Force
 }
