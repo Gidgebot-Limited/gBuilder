@@ -284,10 +284,10 @@ Function Set-ApacheDocumentRoot {
 
     # Replace DocumentRoot value in the configuration file
     $newConfigContent = $apacheConfigContent -replace 'DocumentRoot\s+\/\S+', "DocumentRoot $NewDocumentRoot"
-
+    
     # Replace <Directory> opening tag with new path
-    $directoryPattern = '(<Directory\s+)\"\/\S+(\"\s*>)'
-    $newConfigContent = $newConfigContent -replace $directoryPattern, "`$1$NewDocumentRoot`$2"
+    $newConfigContent = $apacheConfigContent -replace '(<Directory\s+)\"\/\S+(\"\s*>)', "<Directory " + $NewDocumentRoot + ">"
+
 
     # Write the updated configuration content back to the file
     $newConfigContent | Set-Content -Path $apacheConfigFile -Force
