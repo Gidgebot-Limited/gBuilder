@@ -21,6 +21,9 @@ function Invoke-SSHCommand
     # Execute the SSH command using Invoke-Expression
     Invoke-Expression -Command $SSHCommand
 }
+function ConvertTo-epoch($date){
+    return Get-Date -Date $date -UFormat %s
+}
 
 function read-profiles 
 {

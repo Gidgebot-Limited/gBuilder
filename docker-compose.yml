@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   gbuilder:
     build:
@@ -12,15 +11,12 @@ services:
     volumes:
       - ./html:/var/www/html/
       - ./home:/home/gbuilder/
-      - ./home/pwsh/Start-LocalMod.ps1:/opt/microsoft/powershell/7/profile.ps1
-      - ./home/pwsh/Start-LocalMod.ps1:/opt/microsoft/powershell/7/Microsoft.PowerShell_profile.ps1
-      - ./home/pwsh/Start-LocalMod.ps1:/root/.config/powershell/profile.ps1
-      - ./home/pwsh/Start-LocalMod.ps1:/root/.config/powershell/Microsoft.PowerShell_profile.ps1
-      - ./apache2.conf:/etc/apache2/apache2.conf
-      - ./php.ini:/etc/php/8.2/apache2/php.ini
       - ./php.ini:/etc/php/8.2/cli/php.ini
       - ./php.ini:/etc/php/8.2/fpm/php.ini
+      - ./php.ini:/etc/php/8.2/apache2/php.ini
+      - ./apache2.conf:/etc/apache2/apache2.conf
       - ./000-default.conf:/etc/apache2/sites-enabled/000-default.conf
+      - ./home/pwsh/Start-LocalMod.ps1:/root/.config/powershell/profile.ps1
     networks:
       - gidgebot
     depends_on:

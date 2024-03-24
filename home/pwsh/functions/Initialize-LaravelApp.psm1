@@ -1,14 +1,11 @@
 # docker exec -it gbuilder pwsh
-# /home/gbuilder/pwsh/start-localmod.ps1
 # Publish-LaravelApache -Name "ThisSaturday" -Path "/var/www/html/"
 # Update-data
 # service apache2 restart
 # #####################
 # # welcome.php avail #
 # #####################
-# /home/gbuilder/pwsh/start-localmod.ps1
 # Install-UI -Path "C:\Your\Project" -Type "bootstrap" -Auth
-# /home/gbuilder/pwsh/start-localmod.ps1
 # Install-Breeze 
 # Update-data
 function Update-Data {
@@ -23,6 +20,9 @@ function Update-Data {
     php artisan install
     npm install
     php artisan migrate
+    php artisan config:cache
+    php artisan events:cache
+    php artisan routes:cache
     npm run dev
 }
 function Install-Breeze {
@@ -191,8 +191,11 @@ Function Initialize-LaravelApp {
     Set-Location -Path $Name
 
     # Set up environment configuration
-    Copy-Item -Path ".env.example" -Destination ".env"
-    Update-EnvDatabase -EnvFilePath ".env" -Connection "pgsql" -Host "builderdb" -Port "5432" -Database "gidgebot" -Username "gidgebot" -Password "gidgebot"
+    $EnvFilePath = ".env"
+    Copy-Item -Path ".env.example" -Destination $EnvFilePath
+    Update-EnvVariable -FilePath $EnvFilePath -VariableName "APP_NAME" -NewValue $Name
+
+    Update-EnvDatabase -EnvFilePath $EnvFilePath -Connection "pgsql" -Host "builderdb" -Port "5432" -Database "gidgebot" -Username "gidgebot" -Password "gidgebot"
 
     php artisan key:generate
 
