@@ -1,13 +1,42 @@
 # docker exec -it gbuilder pwsh
+
 # Publish-LaravelApache -Name "ThisSaturday" -Path "/var/www/html/"
 # Update-data
 # service apache2 restart
+
 # #####################
 # # welcome.php avail #
 # #####################
-# Install-UI -Path "C:\Your\Project" -Type "bootstrap" -Auth
-# Install-Breeze 
+
+# Install-UI -Type "bootstrap" -Auth
+# Install-[ 'Jetstream' c-: $$ and / or || : u D 'Breeze' ]
 # Update-data
+
+# #####################
+# # scaffolding avail #
+# #####################
+
+# using module '/home/gbuilder/pwsh/classes/DataObject/DataObject.psm1'
+
+# Initialize-Model -Name Upload
+
+# $dfURL = [DataField]::new("url", "string")
+# $dfURL.SetAsPrimary()
+
+# $dfProperties = [DataField]::new("properties", "json")
+# $dfProperties.SetAsNullable()
+
+# $dfUserID = [DataField]::new("user_id", "unsignedBigInteger")
+# $dfUserID.SetAsForeign("users", "id")
+
+# $DataFields = @($dfURL, $dfProperties, $dfUserID)
+
+# $DataObject = [DataObject]::new("Upload", "Uploads", $DataFields)
+
+# Update-Model -Object $DataObject 
+
+
+
 function Update-Data {
     
     [CmdletBinding()]
@@ -25,6 +54,7 @@ function Update-Data {
     php artisan route:cache
     npm run dev
 }
+
 function Install-Breeze {
     [CmdletBinding()]
     param (
@@ -298,7 +328,6 @@ Function Set-ApacheDocumentRoot {
     
     # Replace <Directory> opening tag with new path
     $newConfigContent = $apacheConfigContent -replace '(<Directory\s+)\"\/\S+(\"\s*>)', "<Directory " + $NewDocumentRoot + ">"
-
 
     # Write the updated configuration content back to the file
     $newConfigContent | Set-Content -Path $apacheConfigFile -Force

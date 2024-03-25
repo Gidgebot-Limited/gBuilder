@@ -8,4 +8,26 @@ use Illuminate\Database\Eloquent\Model;
 class Upload extends Model
 {
     use HasFactory;
+
+
+
+    protected $fillable = [
+        'url',
+        'properties',
+        'user_id',
+    ];
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

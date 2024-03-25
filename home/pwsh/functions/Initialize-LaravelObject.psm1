@@ -46,7 +46,7 @@ Function Update-Model {
         [Parameter(Mandatory = $false, HelpMessage = "Specify the path where the model file should be created/updated.")]
         [string]$Path = "app\Models",
         [Parameter(Mandatory = $true, HelpMessage = "Specify the DataObject instance.")]
-        [DataObject]$Object
+        [psCustomObject]$Object
     )
 
     # Check if the model file already exists
@@ -55,13 +55,8 @@ Function Update-Model {
         # Read the existing content of the model file
         $existingContent = Get-Content -Path $modelFilePath -Raw
 
-        # Replace the table name if it exists
-        $pattern = "(?<=protected \$table = \').*?(?=\';)"
-        if ($existingContent -match $pattern) {
-            $existingContent = $existingContent -replace $pattern, $Object.TableName
-        }
-        # Replace the fillable fields if they exist
-        $fillableRegex = '(?<=protected \$fillable = \[).*?(?=\])'
+        # Update fillable fields if they exist
+        $fillableRegex = '(?s)(?<=protected \$fillable\s*=\s*\[).*?(?=\]\s*;)'
         if ($existingContent -match $fillableRegex) {
             $existingContent = $existingContent -replace $fillableRegex, {
                 "`n        " + ($Object.Fields.ForEach({ "'$($_.Name)'," }) -join "`n        ") + "`n    "
@@ -70,13 +65,12 @@ Function Update-Model {
         else {
             # Add the fillable section if it doesn't exist
             $existingContent = $existingContent -replace '(?=\})', {
-                "`n    protected `$fillable = [`n        " + ($Object.Fields.ForEach({ "'$($_.Name)'," }) -join "`n        ") + "`n    ];"
+                "`n    protected `$fillable = [`n        " + ($Object.Fields.ForEach({ "'$($_.Name)'," }) -join "`n        ") + "`n    ];`n"
             }
         }
 
-
         # Update the existing model file with the modified content
-        Set-Content -Path $modelFilePath -Value $existingContent
+        Set-Content -Path $modelFilePath -Value $existingContent -Force
     }
     else {
         # Model file doesn't exist, output a message
@@ -87,19 +81,30 @@ Function Update-Model {
 Function Initialize-Migration {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true, HelpMessage = "Specify the name of the migration.")]
-        [string]$Name,
-        [Parameter(Mandatory = $true, HelpMessage = "Specify the table to be created.")]
-        [string]$CreateTable,
-        [Parameter(Mandatory = $true, HelpMessage = "Specify the fields and their types.")]
-        [DataField[]]$Fields,
-        [string]$Path = "database/migrations"
+        [Parameter(Mandatory = $true, HelpMessage = "Specify the [DataObject] for the migration.")]
+        [psCustomObject]$object,
+        [string]$Create,
+        [string]$Table,
+        [string]$Path = "database/migrations",
+        [switch]$NoInteraction,
+        [ValidateRange(0, 3)]
+        [int]$VerboseLevel = 0
     )
+    
+    $options = @()
+    if ($Create) { $options += "--create=$Create" }
+    if ($Table) { $options += "--table=$Table" }
+    if ($Path) { $options += "--path=$Path" }
+    if ($NoInteraction) { $options += "--no-interaction" }
 
-    $schema = $Fields.ForEach({ $_.GetMigrationSchema() }) -join ' '
-    $command = "php artisan make:migration $Name --create=$CreateTable --path=$Path --schema=`"$schema`""
+    $verbosity = "-".PadRight($VerboseLevel + 1, 'v')
+    $options += $verbosity
+
+    $command = "php artisan make:migration create_${$object.TableName}_table ${$options}"
     Invoke-Expression $command
 }
+
+
 Function Initialize-Controller {
     [CmdletBinding()]
     param (
@@ -147,12 +152,16 @@ Function Initialize-DataObject {
         [DataObject]$Object
     )
 
-    $tableName = $Object.TableName
-    $migrationName = "create_${tableName.ToLower()}s_table"
+    
+
 
     Set-Location -Path $Path
+    
     Initialize-Model -Name $Object.Name
     Update-Model -Object $Object
-    Initialize-Migration -Name $migrationName -CreateTable $tableName -Fields $Object.Fields
+
+    Initialize-Migration -Name "create_${$Object.TableName.ToLower()}_table.php" -NoInteraction
+    
+
     Initialize-Controller -Name "${Object.Name}Controller" -Resource -Requests
 }
