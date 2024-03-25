@@ -17,6 +17,7 @@ services:
       - ./apache2.conf:/etc/apache2/apache2.conf
       - ./000-default.conf:/etc/apache2/sites-enabled/000-default.conf
       - ./home/pwsh/Start-LocalMod.ps1:/root/.config/powershell/profile.ps1
+      - ./home/pwsh/Start-LocalMod.ps1:/root/.config/powershell/Microsoft.PowerShell_profile.ps1
     networks:
       - gidgebot
     depends_on:

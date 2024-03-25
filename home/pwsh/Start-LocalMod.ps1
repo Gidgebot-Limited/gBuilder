@@ -4,9 +4,10 @@
 #>
 
 
-$rzmod = '/home/gbuilder/pwsh/'
+$rzmod = '/home/gbuilder/pwsh'
 Get-ChildItem $rzmod -recurse -Include "*.psm1" | Import-Module
 $env:PSModulePath += ";$($rzmod)"
+
 
 $config = Get-Content -Path '/home/gbuilder/pwsh/config.json' -Raw | ConvertFrom-Json
 

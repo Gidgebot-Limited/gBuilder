@@ -1,73 +1,53 @@
-class DataMethod {
-    [string]$Name
-    [string]$Content
+# Define the DataField class
+Class DataField {
+    [string]$FieldName
+    [string]$FieldType
 
-    DataMethod([string]$Name, [string]$Content) {
-        $this.Name = $Name
-        $this.Content = $Content
-    }
-}
-
-class DataField {
-    [string]$Name
-    [string]$Type
-    [bool]$IsPrimary = $false
-    [bool]$IsForeign = $false
-    [string]$ForeignTable
-    [string]$ForeignKey
-
-    DataField([string]$Name, [string]$Type) {
-        $this.Name = $Name
-        $this.Type = $Type
-    }
-
-    # Set the field as primary key
-    [void] SetAsPrimary() {
-        $this.IsPrimary = $true
-    }
-
-    # Set the field as foreign key
-    [void] SetAsForeign([string]$ForeignTable, [string]$ForeignKey) {
-        $this.IsForeign = $true
-        $this.ForeignTable = $ForeignTable
-        $this.ForeignKey = $ForeignKey
+    DataField([string]$FieldName, [string]$FieldType) {
+        $this.FieldName = $FieldName
+        $this.FieldType = $FieldType
     }
 
     # Get the migration schema definition for the field
     [string] GetMigrationSchema() {
-        $schema = "`$this.Name:`$this.Type"
-
-        if ($this.IsPrimary) {
-            $schema += ":primary"
-        }
-
-        if ($this.IsForeign) {
-            $schema += ":foreign:$($this.ForeignTable):$($this.ForeignKey)"
-        }
-
-        return $schema
+        return "`t`$table->" + $this.FieldName + "('" + $this.FieldType + "')"
     }
 }
 
-class DataObject {
+# Define the DataMethod class (for demonstration purposes)
+Class DataMethod {
+    [string]$MethodName
+
+    DataMethod([string]$MethodName) {
+        $this.MethodName = $MethodName
+    }
+}
+
+# Define the DataObject class
+Class DataObject {
     [string]$Name
     [string]$TableName
-    [DataField[]]$Fields
-    [DataMethod[]]$Methods
+    [System.Collections.Generic.List[DataField]]$Fields
+    [System.Collections.Generic.List[DataMethod]]$Methods
 
-    DataObject([string]$Name, [string]$TableName, [DataField[]]$Fields, [DataMethod[]]$Methods) {
+    DataObject(
+        [string]$Name,
+        [string]$TableName,
+        [System.Collections.Generic.List[DataField]]$Fields = @(),
+        [System.Collections.Generic.List[DataMethod]]$Methods = @()
+    ) {
         $this.Name = $Name
         $this.TableName = $TableName
         $this.Fields = $Fields
         $this.Methods = $Methods
     }
-
+    
     # Get the migration schema definition for the object
     [string] GetMigrationSchema() {
         $schema = "`$this.TableName"
 
         foreach ($field in $this.Fields) {
-            $schema += " " + $field.GetMigrationSchema()
+            $schema += "`n" + "`t" + $field.GetMigrationSchema()
         }
 
         return $schema

@@ -21,8 +21,8 @@ function Update-Data {
     npm install
     php artisan migrate
     php artisan config:cache
-    php artisan events:cache
-    php artisan routes:cache
+    php artisan event:cache
+    php artisan route:cache
     npm run dev
 }
 function Install-Breeze {
@@ -131,8 +131,9 @@ function Install-UI {
     [CmdletBinding()]
     param (
         [string]$Path = ".",
-        [string]$Type = "bootstrap",
+        [string]$Type = "none",
         [switch]$Auth,
+        [switch]$API,
         [string[]]$Option
     )
 
@@ -140,12 +141,19 @@ function Install-UI {
 
     $command = "composer require laravel/ui --dev"
 
-    # Add preset type
-    $command += " && php artisan ui $Type"
+    # Add preset type, handling "none" as default
+    if ($Type -ne "none") {
+        $command += " && php artisan ui $Type"
+    }
 
     # Add authentication option if specified
     if ($Auth) {
         $command += " --auth"
+    }
+
+    # Add API option if specified
+    if ($API) {
+        $command += " --api"
     }
 
     # Add additional options if specified
@@ -154,7 +162,8 @@ function Install-UI {
     }
 
     Invoke-Expression $command
-}
+}#Install-UI -Type tailwindcss -Auth -Option option1 -Option option2
+
 Function Publish-LaravelApache {
 
     [CmdletBinding()]
@@ -193,7 +202,6 @@ Function Initialize-LaravelApp {
     # Set up environment configuration
     $EnvFilePath = ".env"
     Copy-Item -Path ".env.example" -Destination $EnvFilePath
-    Update-EnvVariable -FilePath $EnvFilePath -VariableName "APP_NAME" -NewValue $Name
 
     Update-EnvDatabase -EnvFilePath $EnvFilePath -Connection "pgsql" -Host "builderdb" -Port "5432" -Database "gidgebot" -Username "gidgebot" -Password "gidgebot"
 
@@ -250,7 +258,7 @@ Function Update-EnvDatabase {
         [Parameter(Mandatory = $true)]
         [string]$Username,
         [Parameter(Mandatory = $true)]
-        [string]$Password
+        [SecureString]$Password
     )
 
     # Uncomment database configuration variables if they are commented out
