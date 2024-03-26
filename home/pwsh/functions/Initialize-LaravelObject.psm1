@@ -1,3 +1,4 @@
+using module '/home/gbuilder/pwsh/classes/DataObject/DataObject.psm1'
 Function Initialize-Model {
     [CmdletBinding()]
     param (
@@ -78,13 +79,14 @@ Function Update-Model {
     }
 }
 
+
 Function Initialize-Migration {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true, HelpMessage = "Specify the [DataObject] for the migration.")]
-        [psCustomObject]$object,
+        [Parameter(Mandatory = $true, HelpMessage = "Specify the -Name for the migration.")]
+        [string]$Name,
+        [DataObject]$Object,
         [string]$Create,
-        [string]$Table,
         [string]$Path = "database/migrations",
         [switch]$NoInteraction,
         [ValidateRange(0, 3)]
@@ -100,11 +102,113 @@ Function Initialize-Migration {
     $verbosity = "-".PadRight($VerboseLevel + 1, 'v')
     $options += $verbosity
 
-    $command = "php artisan make:migration create_${$object.TableName}_table ${$options}"
+    # $lowName = $Object.TableName.ToLower()
+    $command = "php artisan make:migration ${$Name} ${$options}"
     Invoke-Expression $command
 }
+Function Get-MigrationFromSchema {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true, HelpMessage = "Specify the DataObject schema string.")]
+        [string]$SchemaString
+    )
 
+    # Parse the schema string and split it into DataField sets
+    $fieldSets = $SchemaString.Split('::')
 
+    # Construct the migration content based on the parsed schema
+    $migrationContent = "public function up(): void`n{`n    Schema::create('$($fieldSets[0])', function (Blueprint `$table) {`n        `$table->id();`n"
+
+    # Process each DataField set to add corresponding schema elements
+    for ($i = 1; $i -lt $fieldSets.Count; $i++) {
+        $field = $fieldSets[$i].Split(':')
+        $name = $field[0]
+        $type = $field[1]
+
+        $migrationContent += "        `$table->$type('$name')"
+
+        # Check for additional modifiers in the schema
+        for ($j = 2; $j -lt $field.Count; $j++) {
+            $modifier = $field[$j]
+            switch ($modifier) {
+                'nullable' {
+                    $migrationContent += "->nullable()"
+                }
+                'primary' {
+                    $migrationContent += "->primary()"
+                }
+                default {
+                    # Handle foreign key modifier
+                    if ($modifier -eq 'foreign' -and $j + 2 -lt $field.Count) {
+                        $foreignTable = $field[$j + 1]
+                        $foreignKey = $field[$j + 2]
+                        $migrationContent += "->foreign('$name')->references('$foreignKey')->on('$foreignTable')->onDelete('cascade')"
+                        $j += 2  # Skip the next two elements as they are used
+                    }
+                }
+            }
+        }
+
+        $migrationContent += ";`n"
+    }
+
+    # Add timestamps and close the Schema::create block
+    $migrationContent += "        `$table->timestamps();`n    });`n}"
+
+    # Output the generated migration content
+    Write-Output $migrationContent
+}
+
+Function Update-Migration {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $false, HelpMessage = "Specify the path where the migration file should be updated.")]
+        [string]$Path = "database/migrations",
+        [Parameter(Mandatory = $true, HelpMessage = "Specify the DataObject instance.")]
+        [DataObject]$Object, 
+        [Parameter(Mandatory = $true, HelpMessage = "Specify the Migration Filename.")]  
+        [string]$MigrationFileName
+    )
+
+    $migrationFilePath = Join-Path -Path $Path -ChildPath $MigrationFileName
+    if (Test-Path $migrationFilePath) {
+        Write-Host "Migration file found: $migrationFilePath"
+        $existingContent = Get-Content -Path $migrationFilePath -Raw
+
+        # Define the regular expression pattern to match the entire up() method content
+        $pattern = "(?sm)(?<=public function up\(\): void\s*\{).*?(?=\s*public function down\(\): void\s*\{)"
+        Write-Host "Regex pattern: $pattern"
+
+        # Test the regular expression
+        $match = $existingContent -match $pattern
+        if ($match) {
+            Write-Host "Match found!"
+            $matchContent = $matches[0]
+            Write-Host "Match content:"
+            Write-Host $matchContent
+
+            # Get the new schema based on the DataObject
+            $newSchema = Get-MigrationFromSchema -SchemaString $Object.GetMigrationSchema()
+
+            # Update the matched content with the new schema
+            $updatedContent = $existingContent -replace $pattern, $newSchema
+
+            # Update the existing migration file with the modified content
+            Set-Content -Path $migrationFilePath -Value $updatedContent -Force
+            Write-Host "Migration file updated."
+        }
+        else {
+            Write-Host "No match found for the up() method content."
+        }
+    }
+    else {
+        # Migration file doesn't exist, output a message
+        Write-Output "Migration file '$migrationFileName' not found in path '$Path'. No action taken."
+    }
+}
+
+# Call the Update-Migration function
+# Update-Migration -MigrationFileName "2024_03_26_000338_create_uploads_table.php" -Object $UploadObject
 Function Initialize-Controller {
     [CmdletBinding()]
     param (
@@ -160,7 +264,7 @@ Function Initialize-DataObject {
     Initialize-Model -Name $Object.Name
     Update-Model -Object $Object
 
-    Initialize-Migration -Name "create_${$Object.TableName.ToLower()}_table.php" -NoInteraction
+    Initialize-Migration -Object $Object -NoInteraction
     
 
     Initialize-Controller -Name "${Object.Name}Controller" -Resource -Requests

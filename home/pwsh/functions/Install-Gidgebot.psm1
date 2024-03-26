@@ -1,3 +1,4 @@
+using module '/home/gbuilder/pwsh/classes/DataObject/DataObject.psm1'
 Function Install-UploadModel {
   
     [CmdletBinding()]
@@ -14,23 +15,39 @@ Function Install-UploadModel {
     Update-Model -Object $Object 
 
 }
+
 Function Install-UploadMigration {
   
     [CmdletBinding()]
     
     param (
-        [string]$Path = "."
+        [string]$Path = ".",
+    
+        [Parameter(Mandatory = $true, HelpMessage = "Specify the [DataObject] instance.")]
+        [psCustomObject]$Object
     )
-    [Parameter(Mandatory = $true, HelpMessage = "Specify the DataObject instance.")]
-    [psCustomObject]$Object
-
     Set-Location $Path
 
-    Initialize-Migration -Name "create_${$Object.TableName}_table.php" -NoInteraction
-    Update-Migration -Object $Object 
+    Initialize-Migration -Object $Object -Create "Uploads" -NoInteraction
+    # Update-Migration -Object $Object 
 
 }
 
+Function Get-UploadObject {
+    $dfURL = [DataField]::new("url", "string")
+    $dfURL.SetAsPrimary()
+
+    $dfProperties = [DataField]::new("properties", "json")
+    $dfProperties.SetAsNullable()
+
+    $dfUserID = [DataField]::new("user_id", "unsignedBigInteger")
+    $dfUserID.SetAsForeign("users", "id")
+
+    $DataFields = @($dfURL, $dfProperties, $dfUserID)
+
+    $DataObject = [DataObject]::new("Upload", "Uploads", $DataFields)
+    return $DataObject
+}
 Function Install-Upload {
   
     [CmdletBinding()]

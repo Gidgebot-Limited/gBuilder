@@ -28,10 +28,10 @@ class DataObject {
 
     # Get the migration schema definition for the object
     [string] GetMigrationSchema() {
-        $schema = "`$this.TableName"
+        $schema = $this.TableName
 
         foreach ($field in $this.Fields) {
-            $schema += " " + $field.GetMigrationSchema()
+            $schema += "::" + $field.GetMigrationSchema()
         }
 
         return $schema
@@ -81,7 +81,7 @@ class DataField {
 
     # Get the migration schema definition for the field
     [string] GetMigrationSchema() {
-        $schema = "`$this.Name:`$this.Type"
+        $schema = $this.Name + ":" +  $this.Type
 
         if ($this.IsPrimary) {
             $schema += ":primary"
