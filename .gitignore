@@ -2,9 +2,8 @@
 /*
 
 # Except for these specific files and directories
-!builderdb/
-!home/
-!html/
+
+!home/pwsh
 !.gitignore
 !docker-compose.yml
 !Dockerfile
