@@ -13,7 +13,7 @@
 
 ## Getting Started
 
-To get started with gBuilder, you will need a system with PowerShell installed. gBuilder is designed to work with PowerShell 5.1 or higher on Windows OS.
+To get started with gBuilder, you will need a system with PowerShell installed. 
 
 1. Clone the gBuilder repository to your local machine.
 2. Ensure Docker is installed if you plan to use containerization features.
