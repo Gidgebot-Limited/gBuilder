@@ -4,7 +4,7 @@
 # Except for these specific files and directories
 
 !home/pwsh
-*/Install-Gidgebot.psm1
+home/pwsh/functions/Install-Gidgebot.psm1
 !.gitignore
 !README.md
 !docker-compose.yml
