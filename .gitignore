@@ -1,10 +1,7 @@
 # Ignore all files and directories by default
 /*
-
 # Except for these specific files and directories
-
 !home/pwsh
-home/pwsh/functions/Install-Gidgebot.psm1
 !.gitignore
 !README.md
 !docker-compose.yml
