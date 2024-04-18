@@ -1,5 +1,4 @@
 using module '/home/gbuilder/pwsh/classes/DataObject/DataObject.psm1'
-
 Function Initialize-Model {
     [CmdletBinding()]
     param (
@@ -21,7 +20,6 @@ Function Initialize-Model {
         [switch]$Pest,
         [switch]$PhpUnit
     )
-
     $options = @()
     if ($All) { $options += "--all" }
     if ($Controller) { $options += "--controller" }
@@ -38,7 +36,6 @@ Function Initialize-Model {
     if ($Test) { $options += "--test" }
     if ($Pest) { $options += "--pest" }
     if ($PhpUnit) { $options += "--phpunit" }
-
     $command = "php artisan make:model $Name $options"
     Invoke-Expression $command
 }
@@ -50,7 +47,7 @@ Function Update-Model {
         [Parameter(Mandatory = $true, HelpMessage = "Specify the DataObject instance.")]
         [psCustomObject]$Object
     )
-
+    
     # Check if the model file already exists
     $modelFilePath = Join-Path -Path $Path -ChildPath "$($Object.Name).php"
     if (Test-Path $modelFilePath) {
