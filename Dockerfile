@@ -1,7 +1,5 @@
 FROM debian:bullseye-slim
-
 RUN groupadd -r gbuilder && useradd -r -g gbuilder -m gbuilder
-
 RUN apt-get -y update
 RUN apt-get -y upgrade
 RUN apt-get update -y && \
@@ -35,7 +33,6 @@ RUN apt-get install -y php8.3-xml
 RUN apt-get install -y php-pear
 RUN apt-get install -y php8.3-bcmath
 RUN apt-get install -y php8.3-pgsql
-
 RUN apt-get install -y \
     php8.3-dev \
     libxml2-dev \
@@ -43,27 +40,20 @@ RUN apt-get install -y \
     zlib1g-dev \
     libcurl4-openssl-dev \
     libssl-dev
-
 RUN apt-get update && apt-get install -y \
     php8.3-xml \
     php8.3-bcmath \
     php8.3-curl \
     php8.3-dom
-
-# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - && \
     apt-get install -y nodejs \
     build-essential && \
     node --version && \
     npm --version
-
 RUN apt-get install -y apache2 apache2-utils apt-utils
 RUN apt-get install -y libapache2-mod-php
 RUN apt-get install -y certbot
-
-# Install necessary packages for PowerShell Core
 RUN apt-get update && \
     apt-get install -y \
     curl \
@@ -72,23 +62,15 @@ RUN apt-get update && \
     apt-transport-https \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# Import the Microsoft repository GPG keys
 RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-
-# Add the Microsoft package repository for Debian Bullseye (version 11)
 RUN echo "deb [arch=amd64] https://packages.microsoft.com/debian/11/prod bullseye main" > /etc/apt/sources.list.d/microsoft.list
-
-# Install PowerShell Core
 RUN apt-get update && \
     apt-get install -y \
     powershell \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
 RUN apt-get -y upgrade
 RUN apt-get -y clean
-
 RUN a2enmod php*
 RUN a2enmod alias
 RUN a2enmod rewrite
@@ -97,24 +79,13 @@ RUN a2enmod proxy
 RUN a2enmod proxy_http
 RUN a2enmod proxy_balancer
 RUN a2enmod lbmethod_byrequests
-
-
-
-#COPY ./html /var/www/html
 WORKDIR /etc/apache2/sites-available
 RUN a2ensite *
 WORKDIR /var/www/html
-
 RUN apt-get update && \
     apt-get install -y certbot python3-certbot-apache && \
     apt-get clean
-
-
-# Set the environment variable for Laravel
 ENV LARAVEL_ENV=builder
-
-
-
 EXPOSE 80
 EXPOSE 443
 CMD ["apache2ctl", "-D", "FOREGROUND", "-e", "info"]
