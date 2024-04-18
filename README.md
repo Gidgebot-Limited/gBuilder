@@ -63,11 +63,6 @@ Install-UI -Type "jetstream"
 Install-UI -Type "breeze"
 ```
 
-
-# Laravel Setup Scripts
-
-This guide provides detailed instructions for using the `Install-Breeze` and `Install-Jetstream` PowerShell functions to automate the setup of Laravel projects with Breeze and Jetstream starter kits.
-
 ## Install-Breeze Function
 
 The `Install-Breeze` function facilitates the setup of Laravel Breeze with customizable options.
