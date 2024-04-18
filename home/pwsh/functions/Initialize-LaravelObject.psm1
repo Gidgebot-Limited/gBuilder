@@ -1,4 +1,5 @@
 using module '/home/gbuilder/pwsh/classes/DataObject/DataObject.psm1'
+
 Function Initialize-Model {
     [CmdletBinding()]
     param (
