@@ -1,3 +1,40 @@
+function Update-LaravelTemplate {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Source,
+
+        [string]$Destination = "."
+    )
+
+    if (-not (Test-Path -Path $Source -PathType Container)) {
+        Write-Error "Source path does not exist or is not a directory."
+        return
+    }
+
+    # Ensuring the destination directory exists.
+    if (-not (Test-Path -Path $Destination)) {
+        New-Item -ItemType Directory -Force -Path $Destination | Out-Null
+    }
+
+    # Recursively copying files and directories from source to destination.
+    Get-ChildItem -Path $Source -Recurse | ForEach-Object {
+        $targetPath = $_.FullName.Replace($Source, $Destination)
+
+        if ($_ -is [System.IO.DirectoryInfo]) {
+            # It's a directory; ensure it exists in the destination.
+            if (-not (Test-Path -Path $targetPath)) {
+                New-Item -ItemType Directory -Force -Path $targetPath | Out-Null
+            }
+        }
+        else {
+            # It's a file; copy it, possibly overwriting.
+            Copy-Item -Path $_.FullName -Destination $targetPath -Force
+        }
+    }
+
+    Write-Host "Laravel template update complete."
+}
 function Update-Data {
     
     [CmdletBinding()]
