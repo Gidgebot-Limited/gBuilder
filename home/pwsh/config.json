@@ -1,15 +1,3 @@
 ﻿{
-    "Alpaca":{
-        "Account":"Paper",
-        "Live":{
-            "keyID":"#####",
-            "secretKey":"#####",
-            "apiURL":"https://api.alpaca.markets"
-        },
-        "Paper":{
-            "keyID":"#####",
-            "secretKey":"#####",
-            "apiURL":"https://paper-api.alpaca.markets"
-        }
-    }
+    "key":"value"
 }
