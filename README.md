@@ -1,4 +1,3 @@
-
 # gBuilder: Laravel Application PowerShell Manager
 
 **gBuilder** is an innovative PowerShell tool designed to streamline the deployment, setup, and management of Laravel applications. Leveraging the power of PowerShell, gBuilder makes it easy to execute complex Laravel project tasks such as object initialization, continuous deployment, and more, directly from your command line.
@@ -28,14 +27,7 @@ Below are some examples of how to use gBuilder for common Laravel project tasks:
 
 ```powershell
 # Initialize a new Laravel application
-Initialize-LaravelApp -Name "YourAppName" -WithAuth $true
-```
-
-### Managing Data Objects
-
-```powershell
-# Creating a new Eloquent Model and Migration
-New-DataObject -Name "BlogPost" -Attributes "title:string, content:text"
+Initialize-LaravelApp -Name "YourAppName" -Path "path/to/app"
 ```
 
 ### Publishing Laravel with Apache
@@ -48,7 +40,7 @@ docker exec -it gbuilder pwsh
 
 # Publish Laravel app to Apache server
 Publish-LaravelApache -Name "ThisSaturday" -Path "/var/www/html/"
-Update-data
+Update-Data
 service apache2 restart
 ```
 
@@ -108,8 +100,6 @@ Install-Jetstream -Path "your/project/path" -Stack inertia -Teams -API
 ```
 
 These PowerShell functions streamline the setup process for Laravel Breeze and Jetstream, making it simpler to jumpstart your Laravel application development.
-
-
 
 ### Initializing and Updating Models with Custom Fields
 
