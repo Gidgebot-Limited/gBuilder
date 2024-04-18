@@ -1,5 +1,3 @@
-
-
 function Update-Data {
     
     [CmdletBinding()]

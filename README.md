@@ -63,6 +63,59 @@ Install-UI -Type "jetstream"
 Install-UI -Type "breeze"
 ```
 
+
+# Laravel Setup Scripts
+
+This guide provides detailed instructions for using the `Install-Breeze` and `Install-Jetstream` PowerShell functions to automate the setup of Laravel projects with Breeze and Jetstream starter kits.
+
+## Install-Breeze Function
+
+The `Install-Breeze` function facilitates the setup of Laravel Breeze with customizable options.
+
+### Parameters
+
+- `Path`: Specifies the project directory path. The default path is the current directory (".").
+- `Stack`: Choose your frontend stack (`blade`, `vue`, `react`).
+- `DarkMode`: Enables dark mode if specified.
+- `Pest`: Installs Pest PHP testing framework alongside.
+- `SSR`: Enables Server-Side Rendering.
+- `TypeScript`: Enables TypeScript support.
+- `Composer`: Specify a local composer path or use "global" to use the global composer installation. Default is "global".
+- `NoInteraction`: Runs commands without asking for any interaction.
+
+### Usage
+
+```powershell
+Install-Breeze -Path "your/project/path" -Stack blade -DarkMode -Pest
+```
+
+## Install-Jetstream Function
+
+The `Install-Jetstream` function is designed to automate the installation of Laravel Jetstream with various options.
+
+### Parameters
+
+- `Path`: Target directory for Laravel project.
+- `Stack`: Select between `livewire` and `inertia` for your frontend scaffolding.
+- `DarkMode`: Enables dark theme if opted in.
+- `Teams`: Installs the team management feature.
+- `API`: Includes API support.
+- `Verification`: Adds email verification support.
+- `Pest`: Integrates Pest PHP testing framework.
+- `SSR`: Enables Server-Side Rendering support.
+- `Composer`: Define path to composer or use "global" for global composer. Default to "global".
+- `NoInteraction`: Executes the command without any interactive prompts.
+
+### Usage
+
+```powershell
+Install-Jetstream -Path "your/project/path" -Stack inertia -Teams -API
+```
+
+These PowerShell functions streamline the setup process for Laravel Breeze and Jetstream, making it simpler to jumpstart your Laravel application development.
+
+
+
 ### Initializing and Updating Models with Custom Fields
 
 To create and update models with specific data fields, referencing custom modules:
