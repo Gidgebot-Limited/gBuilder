@@ -207,7 +207,6 @@ Function Update-Migration {
         Write-Output "Migration file '$migrationFileName' not found in path '$Path'. No action taken."
     }
 }
-
 # Call the Update-Migration function
 # Update-Migration -MigrationFileName "2024_03_26_000338_create_uploads_table.php" -Object $UploadObject
 Function Initialize-Controller {
@@ -229,7 +228,6 @@ Function Initialize-Controller {
         [switch]$Pest,
         [switch]$PhpUnit
     )
-
     $options = @()
     if ($Api) { $options += "--api" }
     if ($Type) { $options += "--type=$Type" }
@@ -244,29 +242,19 @@ Function Initialize-Controller {
     if ($Test) { $options += "--test" }
     if ($Pest) { $options += "--pest" }
     if ($PhpUnit) { $options += "--phpunit" }
-
     $command = "php artisan make:controller $Name $options"
     Invoke-Expression $command
 }
 Function Initialize-DataObject {
-
     [CmdletBinding()]
     param (
         [string]$Path = ".",
         [Parameter(Mandatory = $true)]
         [DataObject]$Object
     )
-
-    
-
-
     Set-Location -Path $Path
-    
     Initialize-Model -Name $Object.Name
     Update-Model -Object $Object
-
     Initialize-Migration -Object $Object -NoInteraction
-    
-
     Initialize-Controller -Name "${Object.Name}Controller" -Resource -Requests
 }
