@@ -10,10 +10,16 @@ services:
       - "80:80"
     volumes:
       - ./home:/home/gbuilder/
+      - ./php.ini:/etc/php/8.2/cli/php.ini
+      - ./php.ini:/etc/php/8.2/fpm/php.ini
+      - ./php.ini:/etc/php/8.2/apache2/php.ini
+      - ./apache2.conf:/etc/apache2/apache2.conf
+      - ./000-default.conf:/etc/apache2/sites-enabled/000-default.conf
+      - ./default-ssl.conf:/etc/apache2/sites-enabled/default-ssl.conf
       - ./home/pwsh/Start-LocalMod.ps1:/root/.config/powershell/profile.ps1
       - ./home/pwsh/Start-LocalMod.ps1:/root/.config/powershell/Microsoft.PowerShell_profile.ps1
     networks:
-      - gidgebot
+      - gbuilder
     depends_on:
       - builderdb
   builderdb:
@@ -22,13 +28,13 @@ services:
     volumes:
       - ./builderdb:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: gidgebot
-      POSTGRES_PASSWORD: gidgebot
-      POSTGRES_DB: gidgebot
+      POSTGRES_USER: gbuilder
+      POSTGRES_PASSWORD: gbuilder
+      POSTGRES_DB: gbuilder
     networks:
-      - gidgebot
+      - gbuilder
     ports:
       - "5432:5432"
 networks:
-  gidgebot:
+  gbuilder:
     external: true

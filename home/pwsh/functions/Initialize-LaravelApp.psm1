@@ -44,13 +44,13 @@ function Update-Data {
     Set-Location $Path
     composer update
     composer install
-    php artisan install
+    # php artisan install
     npm install
     php artisan migrate
     php artisan config:cache
     php artisan event:cache
     php artisan route:cache
-    npm run dev
+    npm run build
 }
 
 function Install-Breeze {
@@ -68,7 +68,7 @@ function Install-Breeze {
 
     Set-Location $Path
 
-    $command = "composer require laravel/breeze --dev"
+    $command = "composer require laravel/breeze"
 
     if ($Stack) {
         $command += " && php artisan breeze:install $Stack"
@@ -162,12 +162,13 @@ function Install-UI {
         [string]$Type = "none",
         [switch]$Auth,
         [switch]$API,
+        [switch]$NoInteraction,
         [string[]]$Option
     )
 
     Set-Location $Path
 
-    $command = "composer require laravel/ui --dev"
+    $command = "composer require laravel/ui"
 
     # Add preset type, handling "none" as default
     if ($Type -ne "none") {
@@ -177,6 +178,11 @@ function Install-UI {
     # Add authentication option if specified
     if ($Auth) {
         $command += " --auth"
+    } 
+
+    # Force if specified
+    if ($NoInteraction) {
+        $command += " --no-interaction"
     }
 
     # Add API option if specified
@@ -202,7 +208,8 @@ Function Publish-LaravelApache {
     Initialize-LaravelApp -Name $Name -Path $Path
     $appPath = $Path + $Name
     set-location  $appPath
-    Set-ApacheDocumentRoot -NewDocumentRoot ($appPath + "/public")
+    Set-ApachesDocumentRoot  -NewDocumentRoot ($appPath + "/public/")
+    Update-Data
 }
 Function Initialize-LaravelApp {
     [CmdletBinding()]
@@ -231,7 +238,9 @@ Function Initialize-LaravelApp {
     $EnvFilePath = ".env"
     Copy-Item -Path ".env.example" -Destination $EnvFilePath
 
-    Update-EnvDatabase -EnvFilePath $EnvFilePath -Connection "pgsql" -Host "builderdb" -Port "5432" -Database "gidgebot" -Username "gidgebot" -Password "gidgebot"
+    $dbCred = "gbuilder"
+
+    Update-EnvDatabase -EnvFilePath $EnvFilePath -Connection "pgsql" -Host "builderdb" -Port "5432" -Database $dbCred -Username $dbCred -Password  $dbCred 
 
     php artisan key:generate
 
@@ -286,7 +295,7 @@ Function Update-EnvDatabase {
         [Parameter(Mandatory = $true)]
         [string]$Username,
         [Parameter(Mandatory = $true)]
-        [SecureString]$Password
+        [string]$Password
     )
 
     # Uncomment database configuration variables if they are commented out
@@ -308,25 +317,35 @@ Function Update-EnvDatabase {
     Update-EnvVariable -FilePath $EnvFilePath -VariableName "DB_USERNAME" -NewValue $Username
     Update-EnvVariable -FilePath $EnvFilePath -VariableName "DB_PASSWORD" -NewValue $Password
 }
-Function Set-ApacheDocumentRoot {
+Function Set-ApachesDocumentRoot {
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory = $true)]
-        [string]$ConfigFileName,
+        [string[]]$ConfigFileNames = @("000-default.conf", "default-ssl.conf"),
         [Parameter(Mandatory = $true)]
         [string]$NewDocumentRoot
     )
 
-    # Update Apache configuration file with new document root
-    $apacheConfigFile = "/etc/apache2/sites-available/$ConfigFileName"
-    $apacheConfigContent = Get-Content -Path $apacheConfigFile
-
-    # Replace DocumentRoot value in the configuration file
-    $newConfigContent = $apacheConfigContent -replace 'DocumentRoot\s+\/\S+', "DocumentRoot $NewDocumentRoot"
+    # Ensure NewDocumentRoot for DocumentRoot directive ends with a "/"
+    $DocumentRootPath = $NewDocumentRoot
+    if (-not $DocumentRootPath.EndsWith("/")) {
+        $DocumentRootPath = "$DocumentRootPath/"
+    }
     
-    # Replace <Directory> opening tag with new path
-    $newConfigContent = $apacheConfigContent -replace '(<Directory\s+)\"\/\S+(\"\s*>)', "<Directory " + $NewDocumentRoot + ">"
+    # Prepare NewDocumentRoot for Directory directive without trailing "/"
+    $DirectoryPath = $NewDocumentRoot.TrimEnd('/')
 
-    # Write the updated configuration content back to the file
-    $newConfigContent | Set-Content -Path $apacheConfigFile -Force
+    foreach ($ConfigFileName in $ConfigFileNames) {
+        $apacheConfigFile = "/etc/apache2/sites-available/$ConfigFileName"
+        $apacheConfigContent = Get-Content -Path $apacheConfigFile -Raw
+
+        # Update DocumentRoot value in the configuration file to match any path, ensuring it has a trailing "/"
+        $newConfigContent = $apacheConfigContent -replace 'DocumentRoot\s+.+', "DocumentRoot $DocumentRootPath"
+    
+        # Update <Directory> opening tag to match any path, ensuring it does not have a trailing "/"
+        $newConfigContent = $newConfigContent -replace '(<Directory\s+)[^>]+(>)', "`$1$DirectoryPath`$2"
+        
+        # Write the updated configuration content back to the file
+        Set-Content -Path $apacheConfigFile -Value $newConfigContent -Force
+    }
+    service apache2 restart
 }

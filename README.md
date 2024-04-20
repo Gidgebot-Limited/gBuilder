@@ -19,41 +19,82 @@ To get started with gBuilder, you will need a system with PowerShell installed.
 3. Import the necessary modules into your PowerShell session with `Import-Module`.
 4. Begin using gBuilder by initializing a new Laravel project or managing existing projects with the provided command modules.
 
-## Usage
+# Usage
 
-Below are some examples of how to use gBuilder for common Laravel project tasks:
+## Below are some examples of how to use gBuilder for common Laravel project tasks:
 
-### Initializing a New Laravel Application
+### ...First...:
+```bash
+# Access the gBuilder tool
+cd .../gBuilder
+docker compose up -d
+```
+### ...And Then...:
+Apache's index.html will display at localhost.
 
-```powershell
-# Initialize a new Laravel application
-Initialize-LaravelApp -Name "YourAppName" -Path "path/to/app"
+## Enter gBuilder cli:
+```bash
+docker exec -it gbuilder pwsh
 ```
 
-### Publishing Laravel with Apache
+## Initializing a New Laravel Application:
+
+### ...First...:
+```powershell
+# Initialize a new Laravel application
+Initialize-LaravelApp -Name MyFirst-App_Name -Path /var/www/html/
+```
+### ...And Then...:
+```powershell
+# Initialize a new Laravel application
+Set-ApachesDocumentRoot -NewDocumentRoot /var/www/html/MyFirst-App_Name/public
+```
+
+### ...Or...:
+
+## Initializing amd Serving on HTTP with Apache2
 
 To publish your Laravel app using Apache, use the following commands:
 
+### ...First...:
 ```powershell
-# Access the gBuilder tool
-docker exec -it gbuilder pwsh
-
 # Publish Laravel app to Apache server
-Publish-LaravelApache -Name "ThisSaturday" -Path "/var/www/html/"
-Update-Data
-service apache2 restart
+Publish-LaravelApache -Path /var/www/html/ -Name lapache 
 ```
 
-### User Interface Installation
+### ...And Then...:
 
-For adding user interface schemes to your Laravel application, such as Bootstrap, Jetstream, or Breeze, use the following commands:
+## User Interface Installation
 
+Add Bootstrap UI Authentication Scaffolding and optionally choose from a UI Starter Kit:
+
+### ...First...:
 ```powershell
-# Install UI components
-Install-UI -Type "bootstrap" -Auth
-Install-UI -Type "jetstream"
-Install-UI -Type "breeze"
+Set-Location /var/www/html/lapache 
 ```
+
+### ...And Then...:
+
+Install Bootstrap User Authentication Views:
+
+### ...First...:
+```powershell
+Install-UI -Type "bootstrap" -Auth -NoInteraction
+```
+### ...Or...:
+```powershell
+Install-Breeze -Stack "livewire" -DarkMode -NoInteraction
+```
+### ...Or...:
+```powershell
+Install-Jetstream -Stack "livewire" -DarkMode -Teams -Verification -API -NoInteraction
+```
+### ...And Then...:
+```powershell
+Update-Data
+```
+
+Bootstrap user authentication views will now be available. 
 
 ## Install-Breeze Function
 
@@ -73,7 +114,7 @@ The `Install-Breeze` function facilitates the setup of Laravel Breeze with custo
 ### Usage
 
 ```powershell
-Install-Breeze -Path "your/project/path" -Stack blade -DarkMode -Pest
+Install-Breeze -Stack "livewire" -DarkMode -NoInteraction
 ```
 
 ## Install-Jetstream Function
@@ -96,14 +137,14 @@ The `Install-Jetstream` function is designed to automate the installation of Lar
 ### Usage
 
 ```powershell
-Install-Jetstream -Path "your/project/path" -Stack inertia -Teams -API
+Install-Jetstream -Stack "livewire" -DarkMode -Teams -Verification -API -NoInteraction
 ```
 
 These PowerShell functions streamline the setup process for Laravel Breeze and Jetstream, making it simpler to jumpstart your Laravel application development.
 
-### Initializing and Updating Models with Custom Fields
+# Initializing and Updating Models with Custom Fields
 
-To create and update models with specific data fields, referencing custom modules:
+### To create and update models with specific data fields, referencing custom modules:
 
 ```powershell
 # Use custom DataObject module for advanced model handling

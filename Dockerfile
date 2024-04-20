@@ -1,5 +1,4 @@
 FROM debian:bullseye-slim
-RUN groupadd -r gbuilder && useradd -r -g gbuilder -m gbuilder
 RUN apt-get -y update
 RUN apt-get -y upgrade
 RUN apt-get update -y && \
@@ -16,7 +15,6 @@ RUN apt-get install -y lsb-release
 RUN apt-get install -y unzip   
 RUN rm -rf /var/lib/apt/lists/*
 RUN git config --global init.defaultBranch zero
-RUN git config --global user.name gbuilder
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
     && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list \
     && apt-get update \
