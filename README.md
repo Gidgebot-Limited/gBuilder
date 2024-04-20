@@ -52,7 +52,7 @@ Set-ApachesDocumentRoot -NewDocumentRoot /var/www/html/MyFirst-App_Name/public
 
 ### ...Or...:
 
-## Initializing amd Serving on HTTP with Apache2
+## Initializing and Serving on HTTP with Apache2
 
 To publish your Laravel app using Apache, use the following commands:
 
