@@ -74,10 +74,6 @@ Set-Location /var/www/html/lapache
 ```
 
 ### ...And Then...:
-
-Install Bootstrap User Authentication Views:
-
-### ...First...:
 ```powershell
 Install-UI -Type "bootstrap" -Auth -NoInteraction
 ```
