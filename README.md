@@ -56,13 +56,10 @@ Set-ApachesDocumentRoot -NewDocumentRoot /var/www/html/MyFirst-App_Name/public
 
 To publish your Laravel app using Apache, use the following commands:
 
-### ...First...:
 ```powershell
 # Publish Laravel app to Apache server
 Publish-LaravelApache -Path /var/www/html/ -Name lapache 
 ```
-
-### ...And Then...:
 
 ## User Interface Installation
 
