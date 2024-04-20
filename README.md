@@ -46,7 +46,7 @@ Initialize-LaravelApp -Name MyFirst-App_Name -Path /var/www/html/
 ```
 ### ...And Then...:
 ```powershell
-# Initialize a new Laravel application
+# Update Apache's document root values
 Set-ApachesDocumentRoot -NewDocumentRoot /var/www/html/MyFirst-App_Name/public
 ```
 
