@@ -15,7 +15,7 @@
 To get started with gBuilder, you will need a system with PowerShell installed.
 
 1. Clone the gBuilder repository to your local machine.
-2. Ensure Docker is installed if you plan to use containerization features.
+2. Ensure Docker and docker compose are installed if you plan to use containerization features.
 3. Import the necessary modules into your PowerShell session with `Import-Module`.
 4. Begin using gBuilder by initializing a new Laravel project or managing existing projects with the provided command modules.
 
