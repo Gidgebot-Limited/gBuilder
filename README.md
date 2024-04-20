@@ -32,7 +32,7 @@ docker compose up -d
 ### ...And Then...:
 Apache's index.html will display at localhost.
 
-## Enter gBuilder cli:
+## Enter gBuilder PowerShell cli:
 ```bash
 docker exec -it gbuilder pwsh
 ```
